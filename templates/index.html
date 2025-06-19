@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng dụng truyền file có kí số</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #333; }
+        .section { margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        input[type="file"], input[type="text"], button {
+            padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;
+            display: block; width: calc(100% - 22px); box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff; color: white; cursor: pointer;
+            width: auto; padding: 10px 20px; margin-top: 10px;
+        }
+        button:hover { background-color: #0056b3; }
+        .message { margin-top: 15px; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        ul { list-style: none; padding: 0; }
+        li { margin-bottom: 10px; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ứng dụng truyền file dữ liệu có kí số (RSA)</h1>
+
+        <div class="section">
+            <h2>1. Tạo cặp khóa RSA</h2>
+            <form id="generateKeysForm">
+                <label for="keyNameGenerate">Tên khóa (ví dụ: my_keys):</label>
+                <input type="text" id="keyNameGenerate" name="key_name" value="default">
+                <button type="submit">Tạo khóa mới</button>
+            </form>
+            <div id="generateKeysMessage" class="message info" style="display:none;"></div>
+        </div>
+
+        <div class="section">
+            <h2>2. Tải lên và Ký số file</h2>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <label for="fileInput">Chọn file:</label>
+                <input type="file" id="fileInput" name="file" required>
+                <label for="keyNameUpload">Tên khóa (để ký, ví dụ: default):</label>
+                <input type="text" id="keyNameUpload" name="key_name" value="default">
+                <button type="submit">Tải lên và Ký số</button>
+            </form>
+            <div id="uploadMessage" class="message info" style="display:none;"></div>
+            <div id="downloadLinks"></div>
+        </div>
+
+        <div class="section">
+            <h2>3. Xác minh chữ ký số</h2>
+            <form id="verifyForm" enctype="multipart/form-data">
+                <label for="fileToVerifyInput">Chọn file gốc cần xác minh:</label>
+                <input type="file" id="fileToVerifyInput" name="file" required>
+                <label for="signatureFileInput">Chọn file chữ ký (.sig):</label>
+                <input type="file" id="signatureFileInput" name="signature_file" required>
+                <label for="keyNameVerify">Tên khóa (công khai, ví dụ: default):</label>
+                <input type="text" id="keyNameVerify" name="key_name" value="default">
+                <button type="submit">Xác minh chữ ký</button>
+            </form>
+            <div id="verifyMessage" class="message info" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Helper function to display messages
+        function displayMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+        }
+
+        // 1. Generate Keys Form
+        document.getElementById('generateKeysForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            try {
+                const response = await fetch('/generate_keys', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    displayMessage('generateKeysMessage', data.message, 'success');
+                } else {
+                    displayMessage('generateKeysMessage', data.error || 'Lỗi khi tạo khóa.', 'error');
+                }
+            } catch (error) {
+                displayMessage('generateKeysMessage', 'Lỗi kết nối server: ' + error.message, 'error');
+            }
+        });
+
+
+        // 2. Upload and Sign Form
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const fileInput = document.getElementById('fileInput');
+
+            if (fileInput.files.length === 0) {
+                displayMessage('uploadMessage', 'Vui lòng chọn một file.', 'error');
+                return;
+            }
+
+            displayMessage('uploadMessage', 'Đang tải lên và ký số...', 'info');
+
+            try {
+                const response = await fetch('/upload_and_sign', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayMessage('uploadMessage', data.message, 'success');
+                    const downloadLinksDiv = document.getElementById('downloadLinks');
+                    downloadLinksDiv.innerHTML = `
+                        <h3>Download File và Chữ ký:</h3>
+                        <ul>
+                            <li><a href="/download/${data.filename}" target="_blank">Tải file gốc: ${data.filename}</a></li>
+                            <li><a href="/download/${data.signature_filename}" target="_blank">Tải file chữ ký: ${data.signature_filename}</a></li>
+                        </ul>
+                        <p>Chữ ký (base64): ${data.signature}</p>
+                    `;
+                } else {
+                    displayMessage('uploadMessage', data.error || 'Lỗi khi tải lên và ký số.', 'error');
+                }
+            } catch (error) {
+                displayMessage('uploadMessage', 'Lỗi kết nối server: ' + error.message, 'error');
+            }
+        });
+
+        // 3. Verify Signature Form
+        document.getElementById('verifyForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const fileToVerifyInput = document.getElementById('fileToVerifyInput');
+            const signatureFileInput = document.getElementById('signatureFileInput');
+
+            if (fileToVerifyInput.files.length === 0 || signatureFileInput.files.length === 0) {
+                displayMessage('verifyMessage', 'Vui lòng chọn cả file gốc và file chữ ký.', 'error');
+                return;
+            }
+
+            displayMessage('verifyMessage', 'Đang xác minh chữ ký...', 'info');
+
+            try {
+                const response = await fetch('/verify_signature', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    displayMessage('verifyMessage', data.message, 'success');
+                } else {
+                    displayMessage('verifyMessage', data.message, 'error');
+                }
+            } catch (error) {
+                displayMessage('verifyMessage', 'Lỗi kết nối server: ' + error.message, 'error');
+            }
+        });
+    </script>
+</body>
+</html>
