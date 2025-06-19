@@ -1,4 +1,4 @@
-Chào bạn! Đây là một ứng dụng web đơn giản nhưng mạnh mẽ, được xây dựng bằng Python Flask ở backend và HTML/CSS/JavaScript ở frontend, giúp bạn hiểu và trải nghiệm quá trình truyền file dữ liệu có kí số sử dụng thuật toán RSA.
+![image](https://github.com/user-attachments/assets/8ee2955a-b100-43fc-8564-070d5f6b32a7)Chào bạn! Đây là một ứng dụng web đơn giản nhưng mạnh mẽ, được xây dựng bằng Python Flask ở backend và HTML/CSS/JavaScript ở frontend, giúp bạn hiểu và trải nghiệm quá trình truyền file dữ liệu có kí số sử dụng thuật toán RSA.
 
 Ứng dụng này làm được gì?
 Ứng dụng này mô phỏng một quy trình an toàn để chứng thực nguồn gốc và đảm bảo tính toàn vẹn của file dữ liệu thông qua chữ ký số. Cụ thể, nó cho phép bạn:
@@ -13,3 +13,4 @@ Xác minh chữ ký số:
 Bạn có thể tải lên lại file gốc và file chữ ký số tương ứng.
 Ứng dụng sẽ sử dụng khóa công khai (tương ứng với khóa riêng tư dùng để ký) để kiểm tra xem chữ ký có hợp lệ hay không.
 Nếu chữ ký hợp lệ, điều đó có nghĩa là file chưa bị thay đổi kể từ khi được ký và đúng là do người sở hữu khóa riêng tư đã ký. Nếu không, file có thể đã bị can thiệp.
+![image](https://github.com/user-attachments/assets/67bf8538-403a-411c-b711-3b0797c30c8d)
