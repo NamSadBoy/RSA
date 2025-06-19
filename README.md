@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/8ee2955a-b100-43fc-8564-070d5f6b32a7)Chào bạn! Đây là một ứng dụng web đơn giản nhưng mạnh mẽ, được xây dựng bằng Python Flask ở backend và HTML/CSS/JavaScript ở frontend, giúp bạn hiểu và trải nghiệm quá trình truyền file dữ liệu có kí số sử dụng thuật toán RSA.
+Chào bạn! Đây là một ứng dụng web đơn giản nhưng mạnh mẽ, được xây dựng bằng Python Flask ở backend và HTML/CSS/JavaScript ở frontend, giúp bạn hiểu và trải nghiệm quá trình truyền file dữ liệu có kí số sử dụng thuật toán RSA.
 
 Ứng dụng này làm được gì?
 Ứng dụng này mô phỏng một quy trình an toàn để chứng thực nguồn gốc và đảm bảo tính toàn vẹn của file dữ liệu thông qua chữ ký số. Cụ thể, nó cho phép bạn:
